@@ -37,9 +37,9 @@ if (uri_string() != "") {
     <link href="<?= base_url() ?>NiceAdmin/assets/vendor/quill/quill.snow.css" rel="stylesheet" />
     <link href="<?= base_url() ?>NiceAdmin/assets/vendor/quill/quill.bubble.css" rel="stylesheet" />
     <link href="<?= base_url() ?>NiceAdmin/assets/vendor/remixicon/remixicon.css" rel="stylesheet" />
-    <link
-        href="<?= base_url() ?>NiceAdmin/<?= base_url() ?>NiceAdmin/<?= base_url() ?>NiceAdmin/assets"
-        rel="stylesheet" />
+
+    <!-- Select2 -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/css/select2.min.css" rel="stylesheet" />
 
     <!-- Template Main CSS File -->
     <link href="<?= base_url() ?>NiceAdmin/assets/css/style.css" rel="stylesheet" />
@@ -91,12 +91,21 @@ if (uri_string() != "") {
     </main>
     <!-- End #main -->
 
-
     <?= $this->include('components/footer') ?>
 
-    <a
-        href="#"
-        class="back-to-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
+
+    <a href="#"
+        class="back-to-top d-flex align-items-center justify-content-center">
+        <i class="bi bi-arrow-up-short"></i>
+    </a>
+
+
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-4.0.0.min.js"></script>
+
+    <!-- Select2 -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0/dist/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0/dist/js/select2.min.js"></script>
 
     <!-- Vendor JS Files -->
     <script src="<?= base_url() ?>NiceAdmin/assets/vendor/apexcharts/apexcharts.min.js"></script>
@@ -108,8 +117,12 @@ if (uri_string() != "") {
     <script src="<?= base_url() ?>NiceAdmin/assets/vendor/tinymce/tinymce.min.js"></script>
     <script src="<?= base_url() ?>NiceAdmin/assets/vendor/php-email-form/validate.js"></script>
 
+    <?= $this->renderSection('script') ?>
+
     <!-- Template Main JS File -->
     <script src="<?= base_url() ?>NiceAdmin/assets/js/main.js"></script>
+
+
 </body>
 
 </html>
