@@ -73,9 +73,16 @@
                     <?php foreach ($items as $index => $item) { ?>
                         <tr>
                             <td><?php echo $item['name']; ?></td>
-                            <td><?php echo number_to_currency($item['price'], 'IDR'); ?></td>
+                            <td>
+                                <?php if (!empty($discount)) : ?>
+                                    <del class="text-muted"><?= number_to_currency($item['price'], 'IDR') ?></del><br>
+                                    <span class="text-danger fw-bold"><?= number_to_currency($item['harga_diskon'], 'IDR') ?></span>
+                                <?php else : ?>
+                                    <?php echo number_to_currency($item['price'], 'IDR'); ?>
+                                <?php endif; ?>
+                            </td>
                             <td><?php echo $item['qty']; ?></td>
-                            <td><?php echo number_to_currency($item['price'] * $item['qty'], 'IDR'); ?></td>
+                            <td><?php echo number_to_currency($item['subtotal_diskon'], 'IDR'); ?></td>
                         </tr>
                     <?php } ?>
                 <?php } ?>

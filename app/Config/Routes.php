@@ -17,6 +17,18 @@ $routes->group('produk', ['filter' => 'auth'], function ($routes) {
     $routes->get('download', 'ProdukController::download');
 });
 
+$routes->group('diskon', ['filter' => ['auth', 'adminOnly']], function ($routes) {
+    $routes->get('', 'DiskonController::index');
+    $routes->post('', 'DiskonController::create');
+    $routes->post('edit/(:any)', 'DiskonController::edit/$1');
+    $routes->get('delete/(:any)', 'DiskonController::delete/$1');
+});
+
+$routes->group('kelola-transaksi', ['filter' => ['auth', 'adminOnly']], function ($routes) {
+    $routes->get('', 'TransaksiController::kelola');
+    $routes->post('status/(:num)', 'TransaksiController::updateStatus/$1');
+});
+
 $routes->group('keranjang', ['filter' => 'auth'], function ($routes) {
     $routes->get('', 'TransaksiController::index');
     $routes->post('', 'TransaksiController::cart_add');
@@ -37,3 +49,5 @@ $routes->get('ajax/costs', 'TransaksiController::costs', ['filter' => 'auth']);
 $routes->get('history', 'TransaksiController::history', ['filter' => 'auth']);
 $routes->resource('api/products', ['controller' => 'Api\ProdukController']);
 $routes->get('api/transactions', 'Api\TransaksiController::index');
+
+$routes->resource('api/discounts', ['controller' => 'Api\DiskonController']);

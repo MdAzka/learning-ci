@@ -8,12 +8,14 @@ use App\Services\RajaOngkirService;
 
 use App\Models\TransactionModel;
 use App\Models\TransactionDetailModel;
+use App\Models\DiscountModel;
 
 class TransaksiController extends BaseController
 {
     protected $cart;
     protected $transactionModel;
     protected $transactionDetailModel;
+    protected $discountModel;
 
     public function __construct()
     {
@@ -21,15 +23,32 @@ class TransaksiController extends BaseController
         $this->cart = service('cart');
         $this->transactionModel = new TransactionModel();
         $this->transactionDetailModel = new TransactionDetailModel();
+        $this->discountModel = new DiscountModel();
     }
 
 
 
     public function index()
     {
+        $discount = $this->discountModel->where('tanggal', date('Y-m-d'))->first();
+        $items = $this->cart->contents();
+
+        $total = 0;
+        foreach ($items as &$item) {
+            $hargaDiskon = $item['price'];
+            if ($discount) {
+                $hargaDiskon = max(0, $item['price'] - $discount['nominal']);
+            }
+            $item['harga_diskon']    = $hargaDiskon;
+            $item['subtotal_diskon'] = $hargaDiskon * $item['qty'];
+            $total += $item['subtotal_diskon'];
+        }
+        unset($item);
+
         $data = [
-            'items' => $this->cart->contents(),
-            'total' => $this->cart->total()
+            'items'    => $items,
+            'total'    => $total,
+            'discount' => $discount
         ];
 
         return view('v_keranjang', $data);
@@ -103,11 +122,25 @@ class TransaksiController extends BaseController
     public function checkout()
     {
         $service = new RajaOngkirService();
+        $discount = $this->discountModel->where('tanggal', date('Y-m-d'))->first();
+        $items = $this->cart->contents();
+
+        $total = 0;
+        foreach ($items as &$item) {
+            $hargaDiskon = $item['price'];
+            if ($discount) {
+                $hargaDiskon = max(0, $item['price'] - $discount['nominal']);
+            }
+            $item['harga_diskon']    = $hargaDiskon;
+            $item['subtotal_diskon'] = $hargaDiskon * $item['qty'];
+            $total += $item['subtotal_diskon'];
+        }
+        unset($item);
+
         $data = [
-            'items' => $this->cart->contents(),
-            'total' => $this->cart->total(),
-
-
+            'items'    => $items,
+            'total'    => $total,
+            'discount' => $discount
         ];
 
         return view('v_checkout', $data);
@@ -170,12 +203,18 @@ class TransaksiController extends BaseController
             return redirect()->back();
         }
 
+        $discount = $this->discountModel->where('tanggal', date('Y-m-d'))->first();
+
         $db = \Config\Database::connect();
         $db->transStart();
 
         $subtotal = 0;
         foreach ($cartItems as $item) {
-            $subtotal += $item['qty'] * $item['price'];
+            $hargaDiskon = $item['price'];
+            if ($discount) {
+                $hargaDiskon = max(0, $item['price'] - $discount['nominal']);
+            }
+            $subtotal += $hargaDiskon * $item['qty'];
         }
 
         $ongkir = (int) $this->request->getPost('ongkir');
@@ -198,12 +237,20 @@ class TransaksiController extends BaseController
 
         // insert transaction detail
         foreach ($cartItems as $item) {
+            $diskonPerUnit = 0;
+            $hargaDiskon = $item['price'];
+
+            if ($discount) {
+                $diskonPerUnit = min($item['price'], $discount['nominal']);
+                $hargaDiskon = $item['price'] - $diskonPerUnit;
+            }
+
             $this->transactionDetailModel->insert([
                 'transaction_id' => $transactionId,
                 'product_id'     => $item['id'],
                 'jumlah'         => $item['qty'],
-                'diskon'         => 0,
-                'subtotal_harga' => $item['qty'] * $item['price']
+                'diskon'         => $diskonPerUnit * $item['qty'],
+                'subtotal_harga' => $hargaDiskon * $item['qty']
             ]);
         }
 
@@ -234,5 +281,30 @@ class TransaksiController extends BaseController
         ];
 
         return view('v_history', $data);
+    }
+    public function kelola()
+    {
+        $transactions = $this->transactionModel->orderBy('created_at', 'DESC')->findAll();
+        $transactionIds = array_column($transactions, 'id');
+
+        $products = $this->transactionDetailModel->getProductsByTransactionIds($transactionIds);
+
+        $data = [
+            'transactions'  => $transactions,
+            'products'      => $products
+        ];
+
+        return view('v_kelola_transaksi', $data);
+    }
+
+    public function updateStatus($id)
+    {
+        $status = $this->request->getPost('status');
+
+        $this->transactionModel->update($id, [
+            'status' => $status
+        ]);
+
+        return redirect('kelola-transaksi')->with('success', 'Status transaksi berhasil diperbarui');
     }
 }

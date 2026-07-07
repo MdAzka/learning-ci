@@ -9,6 +9,18 @@
    </div>
    <!-- End Logo -->
 
+   <?php
+    $discountModel = new \App\Models\DiscountModel();
+    $discountHariIni = $discountModel->where('tanggal', date('Y-m-d'))->first();
+    ?>
+   <?php if ($discountHariIni) : ?>
+     <div class="d-none d-md-flex align-items-center ms-3">
+       <span class="badge bg-danger">
+         Diskon Hari Ini: <?= number_to_currency($discountHariIni['nominal'], 'IDR') ?>
+       </span>
+     </div>
+   <?php endif; ?>
+
    <div class="search-bar">
      <form
        class="search-form d-flex align-items-center"

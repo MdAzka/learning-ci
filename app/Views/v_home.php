@@ -14,6 +14,14 @@ if (session()->getFlashData('success')) {
 <!-- Table with stripped rows -->
 <div class="row">
     <?php foreach ($products as $key => $item) : ?>
+        <?php
+        $hargaAsli = $item['harga'];
+        $hargaSetelahDiskon = $hargaAsli;
+        if (!empty($discount)) {
+            $hargaSetelahDiskon = $hargaAsli - $discount['nominal'];
+            if ($hargaSetelahDiskon < 0) $hargaSetelahDiskon = 0;
+        }
+        ?>
         <div class="col-lg-6">
             <?= form_open('keranjang') ?>
             <?php
@@ -25,7 +33,15 @@ if (session()->getFlashData('success')) {
             <div class="card">
                 <div class="card-body">
                     <img src="<?= base_url() . "img/" . $item['foto'] ?>" alt="..." width="50%">
-                    <h5 class="card-title"><?= $item['nama'] ?><br><?= $item['harga'] ?></h5> <?php echo number_to_currency($item['harga'], 'IDR') ?>
+                    <h5 class="card-title"><?= $item['nama'] ?></h5>
+                    <?php if (!empty($discount)) : ?>
+                        <p class="mb-1">
+                            <del class="text-muted"><?= number_to_currency($hargaAsli, 'IDR') ?></del><br>
+                            <span class="text-danger fw-bold"><?= number_to_currency($hargaSetelahDiskon, 'IDR') ?></span>
+                        </p>
+                    <?php else : ?>
+                        <p class="mb-1"><?= number_to_currency($hargaAsli, 'IDR') ?></p>
+                    <?php endif; ?>
                     <button type="submit" class="btn btn-info rounded-pill">Beli</button>
                 </div>
             </div>

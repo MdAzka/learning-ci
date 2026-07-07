@@ -28,6 +28,21 @@
       </li>
       <!-- End Produk Nav -->
 
+      <li class="nav-item">
+        <a class="nav-link <?php echo (uri_string() == 'diskon') ? "" : "collapsed" ?>" href="/diskon">
+          <i class="bi bi-percent"></i>
+          <span>Diskon</span>
+        </a>
+      </li>
+      <!-- End Diskon Nav -->
+
+      <li class="nav-item">
+        <a class="nav-link <?php echo (uri_string() == 'kelola-transaksi') ? "" : "collapsed" ?>" href="/kelola-transaksi">
+          <i class="bi bi-clipboard-check"></i>
+          <span>Kelola Transaksi</span>
+        </a>
+      </li>
+      <!-- End Kelola Transaksi Nav -->
 
       <li class="nav-item">
         <a class="nav-link <?php echo (uri_string() == 'history') ? "" : "collapsed" ?>" href="history">
